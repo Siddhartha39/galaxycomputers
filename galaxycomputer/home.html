@@ -388,11 +388,12 @@
       function updateAnnouncementText(text) {
         const announcement = document.getElementById('announcement-text');
         const announcementCopy = document.getElementById('announcement-text-copy');
+        const safeText = text ? text.trim() : '';
         if (announcement) {
-          announcement.textContent = text || 'Sale up to 50% off on selected refurbished devices — contact us today for the best deals.';
+          announcement.textContent = safeText;
         }
         if (announcementCopy) {
-          announcementCopy.textContent = '    ' + (text || 'Sale up to 50% off on selected refurbished devices — contact us today for the best deals.');
+          announcementCopy.textContent = '    ' + safeText;
         }
       }
 
@@ -523,9 +524,7 @@
       document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
         const storedAnnouncement = localStorage.getItem('gc_announcement_text');
-        if (storedAnnouncement) {
-          updateAnnouncementText(storedAnnouncement);
-        }
+        updateAnnouncementText(storedAnnouncement || '');
 
         window.addEventListener('announcement-updated', () => {
           const nextAnnouncement = localStorage.getItem('gc_announcement_text');
