@@ -67,8 +67,6 @@
             </div>
             <div id="save-status" class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"></div>
             <button id="save-product-btn" type="submit" class="w-full rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">Save product</button>
-            <button id="seed-products-btn" type="button" class="mt-3 w-full rounded-full border border-emerald-500 px-5 py-3 text-sm font-semibold text-emerald-400 transition hover:bg-emerald-500/10">Seed default products</button>
-            <p id="seed-status" class="mt-3 text-sm text-slate-500"></p>
           </form>
         </section>
 
@@ -162,10 +160,8 @@
 
       function loadAnnouncement() {
         const savedText = localStorage.getItem('gc_announcement_text');
-        if (savedText && announcementInput) {
-          announcementInput.value = savedText;
-        } else if (announcementInput) {
-          announcementInput.value = 'Sale up to 50% off on selected refurbished devices — contact us today for the best deals.';
+        if (announcementInput) {
+          announcementInput.value = savedText || '';
         }
       }
 
@@ -221,15 +217,15 @@
             persistProductsToLocal(firestoreProducts);
             renderInventory();
           } else if (!hasCachedProducts) {
-            const seededProducts = await seedDefaultProducts();
-            persistProductsToLocal(seededProducts);
+            products = [];
+            persistProductsToLocal([]);
             renderInventory();
           }
         } catch (error) {
           console.warn('Firestore connection failed:', error.message);
           if (!hasCachedProducts) {
-            const seededProducts = await seedDefaultProducts();
-            persistProductsToLocal(seededProducts);
+            products = [];
+            persistProductsToLocal([]);
             renderInventory();
           }
         }
@@ -255,63 +251,6 @@
             </div>
           </div>
         `).join('');
-      }
-
-      async function seedDefaultProducts() {
-        const defaultProducts = [
-          {
-            id: 'lenovo-tt490',
-            name: 'Lenovo ThinkPad T490',
-            category: 'Laptops',
-            brand: 'Lenovo',
-            price: 21500,
-            originalPrice: 26500,
-            imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80',
-            images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80'],
-            specs: ['Intel Core i7 8th Gen', '8GB RAM / 256GB SSD', '6 months warranty'],
-            description: 'Portable business laptop with smooth performance for daily work.',
-            accessories: 'Charger and user manual',
-            condition: 'Good',
-            warrantyMonths: 6,
-            stock: 'In Stock',
-            featured: true,
-            newArrival: true,
-            deal: false,
-            createdAt: Date.now()
-          },
-          {
-            id: 'dell-latitude',
-            name: 'Dell Latitude 5420',
-            category: 'Laptops',
-            brand: 'Dell',
-            price: 28999,
-            originalPrice: 34999,
-            imageUrl: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=700&q=80',
-            images: ['https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=700&q=80'],
-            specs: ['Intel Core i5 11th Gen', '16GB RAM / 512GB SSD', '12 months warranty'],
-            description: 'Lightweight business-grade laptop for modern workspaces.',
-            accessories: 'Charger and bag',
-            condition: 'Excellent',
-            warrantyMonths: 12,
-            stock: 'Limited',
-            featured: true,
-            newArrival: false,
-            deal: true,
-            createdAt: Date.now() + 1
-          }
-        ];
-
-        try {
-          for (const product of defaultProducts) {
-            await setDoc(doc(db, 'products', product.id), product);
-          }
-          setSaveStatus('Default products seeded successfully.', 'success');
-        } catch (error) {
-          console.warn('Firestore seed failed:', error.message);
-          setSaveStatus('Seeded products locally; Firestore may be unavailable.', 'warning');
-        }
-
-        return defaultProducts;
       }
 
       function buildProductPayload(formData) {
@@ -418,12 +357,6 @@
         });
 
         document.getElementById('reset-form').addEventListener('click', clearForm);
-        document.getElementById('seed-products-btn').addEventListener('click', async () => {
-          setSaveStatus('Seeding default products...', 'info');
-          const seededProducts = await seedDefaultProducts();
-          persistProductsToLocal(seededProducts);
-          renderInventory();
-        });
 
         document.getElementById('inventory-list').addEventListener('click', async (event) => {
           const editTarget = event.target.closest('[data-edit-product]');
