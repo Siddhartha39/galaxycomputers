@@ -405,6 +405,21 @@
         }
       }
 
+      async function loadAnnouncementFromFirestore() {
+        try {
+          const snapshot = await getDocs(collection(db, 'site-settings'));
+          const settingsDoc = snapshot.docs.find((item) => item.id === 'announcement');
+          if (settingsDoc) {
+            const text = settingsDoc.data().text || '';
+            localStorage.setItem('gc_announcement_text', text);
+            localStorage.setItem('gc_announcement_updated', Date.now().toString());
+            updateAnnouncementText(text);
+          }
+        } catch (error) {
+          console.warn('Could not load shared announcement:', error.message);
+        }
+      }
+
       function persistProducts(productsToStore) {
         products = productsToStore;
         localStorage.setItem('gc_products', JSON.stringify(products));
@@ -533,6 +548,7 @@
         lucide.createIcons();
         const storedAnnouncement = localStorage.getItem('gc_announcement_text');
         updateAnnouncementText(storedAnnouncement || '');
+        await loadAnnouncementFromFirestore();
 
         window.addEventListener('announcement-updated', () => {
           const nextAnnouncement = localStorage.getItem('gc_announcement_text');
