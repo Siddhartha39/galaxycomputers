@@ -18,8 +18,22 @@
       .card-hover:hover { transform: translateY(-4px); box-shadow: 0 16px 35px rgba(15,23,42,0.12); }
       .topbar-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 60; }
       body { padding-top: 0; }
-      .marquee-run { display: inline-block; animation: marquee 16s linear infinite; }
+      .marquee-run { display: inline-block; white-space: nowrap; animation: marquee 16s linear infinite; }
       .announcement-bg { background: linear-gradient(90deg, #10b981, #06b6d4, #4338ca, #ec4899); background-size: 300% 300%; animation: gradient-slide 10s ease infinite; }
+      .announcement-bar-inner { display: flex; align-items: center; justify-content: center; min-height: 1.5rem; }
+      @media (max-width: 640px) {
+        .marquee-run {
+          display: block;
+          width: 100%;
+          text-align: center;
+          animation: none;
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+        #announcement-text-copy {
+          display: none;
+        }
+      }
       .testimonial-row { overflow: hidden; }
       .testimonial-track { display: inline-flex; gap: 1.25rem; animation: scroll-left 24s linear infinite; }
       .testimonial-row.reverse .testimonial-track { animation-name: scroll-right; animation-duration: 28s; }
@@ -37,9 +51,11 @@
   <body class="bg-slate-50 text-slate-800">
     <header class="topbar-wrapper border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
       <div id="announcement-bar" class="overflow-hidden border-b border-emerald-100 announcement-bg px-4 py-2 text-sm font-semibold text-white">
-        <div class="marquee-run whitespace-nowrap">
-          <span id="announcement-text">Sale up to 50% off on selected refurbished devices — contact us today for the best deals.</span>
-          <span id="announcement-text-copy" class="pl-16">    Sale up to 50% off on selected refurbished devices — contact us today for the best deals.</span>
+        <div class="announcement-bar-inner">
+          <div class="marquee-run">
+            <span id="announcement-text">Sale up to 50% off on selected refurbished devices — contact us today for the best deals.</span>
+            <span id="announcement-text-copy" class="pl-16">    Sale up to 50% off on selected refurbished devices — contact us today for the best deals.</span>
+          </div>
         </div>
       </div>
       <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-6">
@@ -386,9 +402,13 @@
       let products = [];
 
       function updateAnnouncementText(text) {
+        const announcementBar = document.getElementById('announcement-bar');
         const announcement = document.getElementById('announcement-text');
         const announcementCopy = document.getElementById('announcement-text-copy');
         const safeText = text ? text.trim() : '';
+        if (announcementBar) {
+          announcementBar.style.display = safeText ? 'block' : 'none';
+        }
         if (announcement) {
           announcement.textContent = safeText;
         }
