@@ -450,7 +450,7 @@
         });
 
         onAuthStateChanged(auth, (user) => {
-          if (!user && !localAdminSessionExists()) {
+          if (!user) {
             window.location.href = '../admin-login/index.html';
           }
         });
