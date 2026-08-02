@@ -3,13 +3,11 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/home.html",
-      "type": 302
+      "destination": "/home.html"
     },
     {
       "source": "/index.html",
-      "destination": "/home.html",
-      "type": 302
+      "destination": "/home.html"
     }
   ],
   "rewrites": [
