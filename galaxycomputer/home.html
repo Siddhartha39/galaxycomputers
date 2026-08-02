@@ -406,60 +406,6 @@
         return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value || 0);
       }
 
-      async function seedDefaultProducts() {
-        const defaults = [
-          {
-            id: 'lenovo-tt490',
-            name: 'Lenovo ThinkPad T490',
-            category: 'Laptops',
-            brand: 'Lenovo',
-            price: 21500,
-            originalPrice: 26500,
-            imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80',
-            images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80'],
-            specs: ['Intel Core i7 8th Gen', '8GB RAM / 256GB SSD', '6 months warranty'],
-            description: 'Portable business laptop with smooth performance for daily work.',
-            accessories: 'Charger and user manual',
-            condition: 'Good',
-            warrantyMonths: 6,
-            stock: 'In Stock',
-            featured: true,
-            newArrival: true,
-            deal: false,
-            createdAt: Date.now()
-          },
-          {
-            id: 'dell-latitude',
-            name: 'Dell Latitude 5420',
-            category: 'Laptops',
-            brand: 'Dell',
-            price: 28999,
-            originalPrice: 34999,
-            imageUrl: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=700&q=80',
-            images: ['https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=700&q=80'],
-            specs: ['Intel Core i5 11th Gen', '16GB RAM / 512GB SSD', '12 months warranty'],
-            description: 'Lightweight business-grade laptop for modern workspaces.',
-            accessories: 'Charger and bag',
-            condition: 'Excellent',
-            warrantyMonths: 12,
-            stock: 'Limited',
-            featured: true,
-            newArrival: false,
-            deal: true,
-            createdAt: Date.now() + 1
-          }
-        ];
-
-        try {
-          for (const product of defaults) {
-            await setDoc(doc(db, 'products', product.id), product);
-          }
-        } catch (error) {
-          console.warn('Firestore seeding skipped - using local defaults.', error);
-        }
-        return defaults;
-      }
-
       async function loadProducts() {
         const cached = localStorage.getItem('gc_products');
         const hasCachedProducts = Boolean(cached);
@@ -481,17 +427,15 @@
             products = firestoreProducts;
             renderProducts();
           } else if (!hasCachedProducts) {
-            const seededProducts = await seedDefaultProducts();
-            persistProducts(seededProducts);
-            products = seededProducts;
+            products = [];
+            persistProducts([]);
             renderProducts();
           }
         } catch (error) {
           console.warn('Firestore connection failed:', error.message);
           if (!hasCachedProducts) {
-            const seededProducts = await seedDefaultProducts();
-            persistProducts(seededProducts);
-            products = seededProducts;
+            products = [];
+            persistProducts([]);
             renderProducts();
           }
         }
