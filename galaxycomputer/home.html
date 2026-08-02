@@ -18,23 +18,28 @@
       .card-hover:hover { transform: translateY(-4px); box-shadow: 0 16px 35px rgba(15,23,42,0.12); }
       .topbar-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 60; }
       body { padding-top: 0; }
-      .marquee-run { display: inline-block; white-space: nowrap; animation: marquee 16s linear infinite; }
+      .marquee-run {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        width: max-content;
+        white-space: nowrap;
+        animation: marquee 14s linear infinite;
+      }
+      .marquee-run span {
+        flex-shrink: 0;
+      }
       .announcement-bg { background: linear-gradient(90deg, #10b981, #06b6d4, #4338ca, #ec4899); background-size: 300% 300%; animation: gradient-slide 10s ease infinite; }
-      .announcement-bar-inner { display: flex; align-items: center; justify-content: center; min-height: 1.5rem; }
+      .announcement-bar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 1.5rem;
+        overflow: hidden;
+      }
       @media (max-width: 640px) {
         .marquee-run {
-          display: block;
-          width: 100%;
-          text-align: center;
-          animation: none;
-          white-space: normal;
-          overflow-wrap: anywhere;
-        }
-        .announcement-bar-inner {
-          justify-content: center;
-        }
-        #announcement-text-copy {
-          display: none;
+          animation: marquee 12s linear infinite;
         }
       }
       .testimonial-row { overflow: hidden; }
@@ -416,7 +421,7 @@
           announcement.textContent = safeText;
         }
         if (announcementCopy) {
-          announcementCopy.textContent = '    ' + safeText;
+          announcementCopy.textContent = safeText;
         }
       }
 
