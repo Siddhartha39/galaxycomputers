@@ -1,9 +1,25 @@
 {
   "cleanUrls": true,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/home",
+      "dest": "/home.html"
+    },
+    {
+      "src": "/home.html",
+      "dest": "/home.html"
+    },
+    {
+      "src": "/admin-login",
+      "dest": "/admin-login/index.html"
+    },
+    {
+      "src": "/admin-dashboard",
+      "dest": "/admin-dashboard/index.html"
     }
   ]
 }
