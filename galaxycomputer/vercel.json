@@ -1,10 +1,18 @@
 {
   "cleanUrls": true,
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "/home.html"
+      "destination": "/home.html",
+      "type": 302
     },
+    {
+      "source": "/index.html",
+      "destination": "/home.html",
+      "type": 302
+    }
+  ],
+  "rewrites": [
     {
       "source": "/home",
       "destination": "/home.html"
