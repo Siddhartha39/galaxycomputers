@@ -87,10 +87,6 @@
         return Boolean(localStorage.getItem('gc_admin_session'));
       }
 
-      if (localAdminSessionExists()) {
-        window.location.href = '../admin-dashboard/index.html';
-      }
-
       function handleAuthError(error) {
         const message = error?.message || 'Unable to sign in.';
         if (error?.code === 'auth/too-many-requests') {
