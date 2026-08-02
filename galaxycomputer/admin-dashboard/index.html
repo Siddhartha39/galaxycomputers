@@ -158,23 +158,47 @@
         select.innerHTML = categories.map((category) => `<option value="${category}">${category}</option>`).join('');
       }
 
-      function loadAnnouncement() {
+      async function loadAnnouncement() {
         const savedText = localStorage.getItem('gc_announcement_text');
         if (announcementInput) {
           announcementInput.value = savedText || '';
         }
+
+        try {
+          const docSnap = await getDocs(collection(db, 'site-settings'));
+          const settingsDoc = docSnap.docs.find((item) => item.id === 'announcement');
+          if (settingsDoc) {
+            const text = settingsDoc.data().text || '';
+            if (announcementInput) {
+              announcementInput.value = text;
+            }
+            localStorage.setItem('gc_announcement_text', text);
+            localStorage.setItem('gc_announcement_updated', Date.now().toString());
+          }
+        } catch (error) {
+          console.warn('Could not load announcement from Firestore:', error.message);
+        }
       }
 
-      function saveAnnouncement() {
+      async function saveAnnouncement() {
         const text = announcementInput.value.trim();
         if (!text) {
           announcementStatus.textContent = 'Please enter an announcement first.';
           return;
         }
-        localStorage.setItem('gc_announcement_text', text);
-        localStorage.setItem('gc_announcement_updated', Date.now().toString());
-        announcementStatus.textContent = 'Announcement saved successfully! Changes will appear on the home page.';
-        window.dispatchEvent(new Event('announcement-updated'));
+        try {
+          await setDoc(doc(db, 'site-settings', 'announcement'), { text, updatedAt: Date.now() }, { merge: true });
+          localStorage.setItem('gc_announcement_text', text);
+          localStorage.setItem('gc_announcement_updated', Date.now().toString());
+          announcementStatus.textContent = 'Announcement saved successfully! Changes will appear on the home page.';
+          window.dispatchEvent(new Event('announcement-updated'));
+        } catch (error) {
+          console.warn('Could not save announcement to Firestore:', error.message);
+          localStorage.setItem('gc_announcement_text', text);
+          localStorage.setItem('gc_announcement_updated', Date.now().toString());
+          announcementStatus.textContent = 'Saved locally, but Firestore sync failed.';
+          window.dispatchEvent(new Event('announcement-updated'));
+        }
       }
 
       function clearForm() {
@@ -283,7 +307,9 @@
         loadAnnouncement();
         await loadProducts();
 
-        document.getElementById('save-announcement-btn').addEventListener('click', saveAnnouncement);
+        document.getElementById('save-announcement-btn').addEventListener('click', () => {
+          saveAnnouncement();
+        });
         document.getElementById('product-form').addEventListener('submit', async (event) => {
           event.preventDefault();
 
