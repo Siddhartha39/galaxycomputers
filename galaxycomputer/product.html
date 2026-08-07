@@ -63,12 +63,12 @@
         return `
           <div class="space-y-4">
             <div class="overflow-hidden rounded-[32px] border border-slate-700 bg-slate-900 shadow-lg">
-              <img id="main-product-image" src="${mainImage}" alt="Product image" class="h-[420px] w-full object-cover sm:h-[520px]" />
+              <img id="main-product-image" src="${mainImage}" alt="Product image" class="aspect-[4/3] w-full object-contain bg-slate-950 p-4" />
             </div>
             <div class="grid grid-cols-3 gap-3 sm:grid-cols-4">
               ${images.map((image, index) => `
                 <button type="button" data-image-index="${index}" class="overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 transition hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/60">
-                  <img src="${image}" alt="Thumbnail ${index + 1}" class="h-24 w-full object-cover" />
+                  <img src="${image}" alt="Thumbnail ${index + 1}" class="aspect-square w-full object-contain bg-slate-950 p-2" />
                 </button>
               `).join('')}
             </div>
@@ -122,6 +122,68 @@
               <button id="add-to-favorites" type="button" class="w-full rounded-full border border-slate-700 px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-400">Save for later</button>
             </div>
           </aside>
+          <section class="lg:col-span-2 rounded-[32px] border border-slate-700 bg-slate-900/80 p-6 shadow-2xl backdrop-blur sm:p-8">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-emerald-400">Specifications</p>
+                <h2 class="mt-2 text-2xl font-semibold text-white">Complete feature list</h2>
+              </div>
+              <div class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300">
+                <span>Full details</span>
+              </div>
+            </div>
+            <ul class="mt-6 grid gap-3 text-sm leading-7 text-slate-300 sm:grid-cols-2">
+              ${Array.isArray(product.specs) && product.specs.length ? product.specs.map((spec) => `
+                <li class="flex items-start gap-3 rounded-3xl border border-slate-700 bg-slate-950/70 p-4">
+                  <span class="mt-1 inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                  <span>${spec}</span>
+                </li>
+              `).join('') : '<li>No additional specifications available.</li>'}
+            </ul>
+          </section>
+          <section class="lg:col-span-2 rounded-[32px] border border-slate-700 bg-slate-900/80 p-6 shadow-2xl backdrop-blur sm:p-8">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-emerald-400">Reviews</p>
+                <h2 class="mt-2 text-2xl font-semibold text-white">What customers love</h2>
+              </div>
+              <div class="rounded-full bg-slate-950/80 px-4 py-2 text-sm text-slate-300">
+                ★ 4.9 average rating
+              </div>
+            </div>
+            <div class="mt-6 grid gap-4 md:grid-cols-3">
+              <article class="rounded-[28px] border border-slate-700 bg-slate-950/70 p-5 text-slate-100 shadow-lg">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-semibold text-white">Siddhartha Singh</p>
+                    <p class="text-sm text-slate-400">2 weeks ago · New</p>
+                  </div>
+                  <span class="text-amber-300">★★★★☆</span>
+                </div>
+                <p class="mt-4 text-sm leading-7 text-slate-300">Bought a refurbished laptop from here. The condition was excellent, everything was working perfectly, and I also received warranty support. Very satisfied with the purchase.</p>
+              </article>
+              <article class="rounded-[28px] border border-slate-700 bg-slate-950/70 p-5 text-slate-100 shadow-lg">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-semibold text-white">David</p>
+                    <p class="text-sm text-slate-400">2 weeks ago · New</p>
+                  </div>
+                  <span class="text-amber-300">★★★★★</span>
+                </div>
+                <p class="mt-4 text-sm leading-7 text-slate-300">Great experience! I purchased a laptop at a competitive price. The owner patiently explained the specifications and helped me choose the best option for my work. Highly recommended.</p>
+              </article>
+              <article class="rounded-[28px] border border-slate-700 bg-slate-950/70 p-5 text-slate-100 shadow-lg">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-semibold text-white">RITESH DIWAKAR</p>
+                    <p class="text-sm text-slate-400">3 days ago · New</p>
+                  </div>
+                  <span class="text-amber-300">★★★★★</span>
+                </div>
+                <p class="mt-4 text-sm leading-7 text-slate-300">Amazing service! Very helpful and polite staff. Highly recommended! Best computer service in town with fast response and reliable pricing.</p>
+              </article>
+            </div>
+          </section>
         `;
 
         document.querySelectorAll('[data-image-index]').forEach((button) => {
