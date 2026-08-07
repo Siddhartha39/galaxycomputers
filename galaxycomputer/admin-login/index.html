@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login | Galaxy Computers & Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-white">
+    <div class="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+      <div class="grid w-full gap-8 overflow-hidden rounded-[32px] border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur grid-cols-1 md:grid-cols-[1fr_0.9fr]">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-400">Admin access</p>
+          <h1 class="mt-3 text-3xl font-semibold">Manage inventory, pricing and customer inquiries.</h1>
+          <p class="mt-4 text-sm leading-7 text-slate-300">Use your Firebase-backed admin account to securely add products, edit stock, and keep your store updated.</p>
+          <div class="mt-6 rounded-[24px] border border-white/10 bg-slate-900/70 p-5 text-sm text-slate-300">
+            <p class="font-semibold text-white">Recommended admin workflow</p>
+            <ul class="mt-3 space-y-2">
+              <li>• Add products with category, brand, image links and specifications.</li>
+              <li>• Mark items as sold, out of stock or featured.</li>
+              <li>• Track inventory from one professional dashboard.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="rounded-[24px] border border-white/10 bg-slate-900/80 p-6">
+          <h2 class="text-xl font-semibold">Secure login</h2>
+          <form id="login-form" class="mt-6 space-y-3">
+            <input id="email" type="email" required placeholder="Admin email" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-emerald-400" />
+            <input id="password" type="password" required placeholder="Admin password" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-emerald-400" />
+            <button id="sign-in-btn" type="submit" class="w-full rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">Sign in</button>
+          </form>
+          <button id="create-admin-btn" class="mt-3 w-full rounded-full border border-emerald-500 px-5 py-3 text-sm font-semibold text-emerald-400 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60">Create first admin account</button>
+          <p id="login-status" class="mt-4 text-sm text-slate-300"></p>
+          <p class="mt-3 text-xs leading-6 text-slate-400">If sign-in still fails, enable Email/Password in Firebase Authentication and create the admin user in the Authentication > Users section.</p>
+          <a href="../home.html" class="mt-4 inline-block text-sm text-emerald-400">Back to store</a>
+        </div>
+      </div>
+    </div>
+
+        <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAhytccILI1rZIaafATkf3zZujxrXE2QoU",
+        authDomain: "alaxycomputers.firebaseapp.com",
+        databaseURL: "https://alaxycomputers-default-rtdb.firebaseio.com",
+        projectId: "alaxycomputers",
+        storageBucket: "alaxycomputers.firebasestorage.app",
+        messagingSenderId: "96681808644",
+        appId: "1:96681808644:web:4639ca57cbc9f82e38b651",
+        measurementId: "G-YZEB0M41NC"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const status = document.getElementById('login-status');
+      const signInButton = document.getElementById('sign-in-btn');
+      const createAdminButton = document.getElementById('create-admin-btn');
+      let authControlsLocked = false;
+
+      function setAuthControlsLocked(locked, message = '') {
+        authControlsLocked = locked;
+        signInButton.disabled = locked;
+        createAdminButton.disabled = locked;
+        if (locked) {
+          signInButton.textContent = 'Please wait';
+          createAdminButton.textContent = 'Please wait';
+          if (message) {
+            status.textContent = message;
+          }
+        } else {
+          signInButton.textContent = 'Sign in';
+          createAdminButton.textContent = 'Create first admin account';
+        }
+      }
+
+      function setLoginStatus(message) {
+        status.textContent = message;
+      }
+
+      function saveLocalAdminSession(email) {
+        localStorage.setItem('gc_admin_session', email);
+      }
+
+      function localAdminSessionExists() {
+        return Boolean(localStorage.getItem('gc_admin_session'));
+      }
+
+      function handleAuthError(error) {
+        const message = error?.message || 'Unable to sign in.';
+        if (error?.code === 'auth/too-many-requests') {
+          setAuthControlsLocked(true, 'Firebase temporarily blocked this device after too many sign-in attempts. Please wait a few minutes and try again.');
+          window.setTimeout(() => {
+            setAuthControlsLocked(false);
+          }, 60000);
+          return 'Firebase temporarily blocked this device after too many sign-in attempts. Please wait a few minutes and try again.';
+        }
+
+        if (['auth/invalid-credential', 'auth/user-not-found', 'auth/wrong-password', 'auth/invalid-login-credentials', 'auth/invalid-email'].includes(error?.code)) {
+          return 'This email/password is not valid for the Firebase project yet. Use “Create first admin account” to create the admin user, or enable Email/Password sign-in in Firebase Authentication.';
+        }
+
+        return message;
+      }
+
+      async function signInWithEnteredCredentials() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        if (!email || !password) {
+          setLoginStatus('Please enter both an email and password.');
+          return;
+        }
+
+        if (authControlsLocked) {
+          return;
+        }
+
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          saveLocalAdminSession(email);
+          window.location.href = '../admin-dashboard/index.html';
+        } catch (error) {
+          status.textContent = handleAuthError(error);
+        }
+      }
+
+      document.getElementById('login-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        signInWithEnteredCredentials();
+      });
+
+      document.getElementById('create-admin-btn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        if (!email || !password) {
+          setLoginStatus('Enter an email and password first.');
+          return;
+        }
+
+        if (authControlsLocked) {
+          return;
+        }
+
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          saveLocalAdminSession(email);
+          window.location.href = '../admin-dashboard/index.html';
+        } catch (error) {
+          if (error?.code === 'auth/email-already-in-use') {
+            status.textContent = 'That admin account already exists. Please sign in with the same credentials.';
+          } else {
+            status.textContent = handleAuthError(error);
+          }
+        }
+      });
+    </script>
+
+  </body>
+</html>
